@@ -105,7 +105,7 @@ afis_octeti_start:
 
 afis_octeti:
     mov al, [si]
-    call afis_binar     ; <-- modificat aici, folosim binar
+    call afis_binar     
     inc si
     dec cl
     jnz afis_octeti
@@ -120,8 +120,8 @@ jmp Georgiana ; salt catre georgiana pentru continuarea programului
 ; --- Subrutina afis_binar ---
 afis_binar:
     push ax
-    push cx         ; salvăm cl (număr octeți rămași)
-    mov cl, 8       ; 8 biți pentru afișare
+    push cx         ; salvam cl (numar octeti ramasi)
+    mov cl, 8       ; 8 biti pentru afisare
     mov bl, al
 binar_loop:
     shl bl,1
@@ -139,7 +139,7 @@ scrie:
     mov dl,' '
     mov ah,02h
     int 21h
-    pop cx          ; restaurăm cl
+    pop cx          ; restauram cl
     pop ax
     ret
 
@@ -150,7 +150,7 @@ Georgiana:
 ;sortare, rotiri, etc
 
 mov ah, 4Ch
-mov al, 00h   ; cod de ieșire 0
+mov al, 00h   ; cod de iesire 0
 int 21h
 
 CODE ENDS 
