@@ -7,6 +7,7 @@ DATA SEGMENT
 	octeti db 16 dup (?) 
 	nr_octeti db 0
 	newline db 13,10,'$' ; sir pentru newline
+	hex_table db '0123456789ABCDEF'
 
 	C dw 0 ;cuvantul C -folosit mai departe 
 DATA ENDS 
@@ -99,6 +100,7 @@ invalid_input:
     int 21h
     jmp citire
 
+
 afis_octeti_start:
     mov si, offset octeti
     mov cl, nr_octeti
@@ -114,10 +116,27 @@ afis_octeti:
     mov ah, 09h
     mov dx, offset newline
     int 21h
+afis_hex_start:
+  mov si, offset octeti
+  mov cl, nr_octeti
+
+afisare_hex_loop:
+    mov al, [si]
+    call afis_hex
+    inc si
+    dec cl
+    jnz afisare_hex_loop
+
+; afisare newline la final
+mov ah, 09h
+mov dx, offset newline
+int 21h
+
+
 
 jmp Georgiana ; salt catre georgiana pentru continuarea programului 
 
-; --- Subrutina afis_binar ---
+; SUBRUTINA BINAR
 afis_binar:
     push ax
     push cx         ; salvam cl (numar octeti ramasi)
@@ -142,12 +161,44 @@ scrie:
     pop cx          ; restauram cl
     pop ax
     ret
+;SUBRUTINA HEXADECIMAL
+afis_hex:
+    push ax
+    push bx
+    push cx
+    push dx
 
+    mov ch, al        ; salvam octetul
+
+    mov bx, offset hex_table
+
+    mov al, ch
+    shr al, 4
+    xlat 
+    mov dl, al
+    mov ah, 02h
+    int 21h
+
+   
+    mov al, ch
+    and al, 0Fh
+    xlat
+    mov dl, al
+    mov ah, 02h
+    int 21h
+
+    ; spatiu
+    mov dl, ' '
+    mov ah, 02h
+    int 21h
+
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    ret
 
 Georgiana:
-;AICI TREBUIE SA CONTINUE GEORGIANA 
-;Aici Va face calculul cuvantului C 
-;sortare, rotiri, etc
 mov al,octeti[0] ;incarca primul octet in al, 3Fh
 mov bl,al ;copiem in bl
 and bl,0F0h ;pastram doar primii 4 biti
@@ -202,6 +253,33 @@ or di,ax
 
 mov c,di;cuvantul COMPLET
 
+;ADAUGAT DE NAOMI PENTRU VERIFICARE -AFISARE CUVANT C 
+mov ax, c
+push ax
+mov al, ah ;octetul superior 
+call afis_binar 
+pop ax
+
+push ax
+mov al, al ;octetul inferior 
+call afis_binar
+pop ax
+
+push ax
+mov al, ah
+call afis_hex
+pop ax 
+
+push ax
+mov al, al
+call afis_hex
+pop ax
+
+mov ah, 09h
+mov dx, offset newline
+int 21h
+
+
 ;ROTIRI
 mov cl,nr_octeti
 mov ch,0
@@ -211,8 +289,8 @@ xor bl,bl
 repeta_rotiri:
 mov al,octeti[si] ;primul octet
 mov bl,al ;il copiem in bl
+xor dl, dl ; resetam
 shl bl,1 ;bitul 7 (high) iese si merge in cf
-xor dl,dl ;resetam
 adc dl,0 ;valorea din carry!!
 shl bl,1
 adc dl,0 ;acum avem suma primilor doi biti, N
@@ -226,8 +304,43 @@ mov octeti[si],al ;salvam octetul nou rotit, inapoi
 inc si ;trecem la urmatorul octet din sir
 loop repeta_rotiri
 
-mov ah, 4Ch
-mov al, 00h   ; cod de iesire 0
+;ADAUGAT DE NAOMI PENTRU A VEDEA/AFISA ROTIRILE 
+
+mov ah, 09h
+mov dx, offset newline
+int 21h
+
+mov si, offset octeti
+mov cl, nr_octeti
+
+afis_rotiri_binar:
+    mov al, [si]
+    call afis_binar
+    inc si
+    dec cl
+    jnz afis_rotiri_binar
+
+mov ah, 09h
+mov dx, offset newline
+int 21h
+
+mov si, offset octeti
+mov cl, nr_octeti
+
+afis_rotiri_hex:
+    mov al, [si]
+    call afis_hex
+    inc si
+    dec cl
+    jnz afis_rotiri_hex
+
+mov ah, 09h
+mov dx, offset newline
+int 21h
+
+
+
+mov ax, 4C00h
 int 21h
 
 CODE ENDS 
