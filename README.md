@@ -38,6 +38,8 @@ Dificultăți întâmpinate:
 7.	La începutul colaborării, am întâmpinat eroarea 403 Forbidden la încercarea de a da push codului pe repository-ul central, deși branch-urile erau create corect. Problema a fost identificată ca fiind legată de drepturile de acces ale colaboratorilor. Proprietarul repository-ului a trebuit să ne adauge manual in echipă în secțiunea "Settings -> Collaborators", iar apoi a trebuit să acceptăm invitația primită prin e-mail.
 8.	Variabila nr_octeti a fost definită ca DB (8 biți), însă registrele de index (precum SI sau DI) și registrul numărător CX necesită valori pe 16 biți. Mutarea directă (MOV SI, nr_octeti) genera erori de asamblare ("Operand types do not match").  Am implementat o metodă de extensie prin zero a valorii. Am încărcat valoarea în AL, am curățat registrul AH folosind XOR AH, AH, obținând astfel în AX valoarea corectă pe 16 biți, care a putut fi mutată apoi în SI sau CX.
 
+Diagrama bloc:
+<img width="944" height="529" alt="image" src="https://github.com/user-attachments/assets/4ec5e5ea-a723-41df-b2ba-f2b10628b7a2" />
 
  
 
