@@ -7,6 +7,7 @@ DATA SEGMENT
 	octeti db 16 dup (?) 
 	nr_octeti db 0
 	newline db 13,10,'$' ; sir pentru newline
+	hex_table db '0123456789ABCDEF'
 
 	C dw 0 ;cuvantul C -folosit mai departe 
 DATA ENDS 
@@ -99,6 +100,7 @@ invalid_input:
     int 21h
     jmp citire
 
+
 afis_octeti_start:
     mov si, offset octeti
     mov cl, nr_octeti
@@ -114,10 +116,27 @@ afis_octeti:
     mov ah, 09h
     mov dx, offset newline
     int 21h
+afis_hex_start:
+  mov si, offset octeti
+  mov cl, nr_octeti
+
+afisare_hex_loop:
+    mov al, [si]
+    call afis_hex
+    inc si
+    dec cl
+    jnz afisare_hex_loop
+
+; afisare newline la final
+mov ah, 09h
+mov dx, offset newline
+int 21h
+
+
 
 jmp Georgiana ; salt catre georgiana pentru continuarea programului 
 
-; --- Subrutina afis_binar ---
+; SUBRUTINA BINAR
 afis_binar:
     push ax
     push cx         ; salvam cl (numar octeti ramasi)
@@ -142,7 +161,42 @@ scrie:
     pop cx          ; restauram cl
     pop ax
     ret
+;SUBRUTINA HEXADECIMAL
+afis_hex:
+    push ax
+    push bx
+    push cx
+    push dx
 
+    mov ch, al        ; salvam octetul
+
+    mov bx, offset hex_table
+
+    mov al, ch
+    shr al, 4
+    xlat 
+    mov dl, al
+    mov ah, 02h
+    int 21h
+
+   
+    mov al, ch
+    and al, 0Fh
+    xlat
+    mov dl, al
+    mov ah, 02h
+    int 21h
+
+    ; spatiu
+    mov dl, ' '
+    mov ah, 02h
+    int 21h
+
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    ret
 
 Georgiana:
 ;AICI TREBUIE SA CONTINUE GEORGIANA 
@@ -155,5 +209,3 @@ int 21h
 
 CODE ENDS 
 END start
-
-
